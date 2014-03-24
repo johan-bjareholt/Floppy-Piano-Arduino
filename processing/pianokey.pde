@@ -63,6 +63,7 @@ class Pianokey {
       fgcolor[2] = 200;
     }
   }
+
   void draw(){
     stroke(fgcolor[0], fgcolor[1], fgcolor[2]);
     if ( toggled == true ){
@@ -72,9 +73,11 @@ class Pianokey {
       fill(bgcolor[0], bgcolor[1], bgcolor[2]);
     }
     rect(x,y,w,h);
-    if (halfkey == false && keynum>0){
+    if (halfkey == false && keynum>0 && keynum<12*octaves){
       Pianokey pianokey = pianokeys.get(keynum-1);
       pianokey.draw();
+      //Pianokey pianokey2 = pianokeys.get(keynum+1);
+      //pianokey2.draw();
     }
   }
   void press(){
