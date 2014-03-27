@@ -38,7 +38,7 @@ int potMap = 0;
  for pin 2 will be stored in index 2, and information for pin 4 will be 
  stored in index 4.*/
 
-//Array containing all periods we are interested in using. 
+//Array containing all periods we are interested in using. 0-48
 const int microPeriods[] = {
         0,
         30578, 28861, 27242, 25713, 24270, 22909, 21622, 20409, 19263, 18182, 17161, 16198, //C1 - B1
@@ -123,7 +123,8 @@ void loop(){
   }
   
   potVal = analogRead(potPin);
-  potMap = constrain(map(potVal, 0, 1023, 0, 12), 0, 12);
+  potMap = constrain(map(potVal, 0, 1023, 0, 48), 0, 48);
+  //Serial.println(potMap);
   
   currentPeriod[2] = (microPeriods[potMap])/(RESOLUTION*2);
    /*
