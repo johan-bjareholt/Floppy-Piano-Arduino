@@ -151,7 +151,7 @@ void tick()
    Om det finns en period definierad för pin 2: 
    Räkna hur många ticks som har passera, och toggla pin 2 om nuvarande period är uppnådd.
    */
-  for(int i = 2; i < 9; i+2){
+  for(int i = 2; i <= 8; i+2){
    if (currentPeriod[i]>0){
      currentTick[i]++;
      if (currentTick[i] >= currentPeriod[i]){
@@ -196,7 +196,7 @@ void togglePin(byte pin, byte direction_pin) {
 //Not used now, but good for debugging...
 void blinkLED(){
   digitalWrite(13, HIGH); // set the LED on
-  delay(250);              // wait for a second
+  delay(250);              // wait for a 0,250 seconds
   digitalWrite(13, LOW); 
 }
 

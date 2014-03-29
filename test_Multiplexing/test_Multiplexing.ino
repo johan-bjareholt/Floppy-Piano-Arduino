@@ -50,5 +50,6 @@ void loop(){
     }
     Serial.println("");
   }
+  delay(5);
 }
 
