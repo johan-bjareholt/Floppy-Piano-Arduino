@@ -134,26 +134,39 @@ void loop(){
   }
   
   readKeyes();
-  
+    
   if(changed){
+    for(int i = 0; i<=15; i++){
+      Serial.print(values[i]); 
+    }
+    Serial.println(""); 
+    
    for(int i = 0; i <= 15; i++){
     if(values[i] == 0){
-     for(int j = 2; j <= 8; j+2){
+     for(int j = 2; j <= 8; j++){
       if(assigned[j] < 0){
        currentPeriod[j] = (microPeriods[i])/(RESOLUTION*2);
        assigned[j] = i;
+       Serial.print(assigned[j]);
+       Serial.print(", to: ");       
+       Serial.println(j);
        j = 9;
       }
+      j = j+1;
      }
     }   
    
     else if(values[i] == 1){
-     for(int j = 2; j <= 8; j+2){
+     for(int j = 2; j <= 8; j++){
       if(assigned[j] == i){
        currentPeriod[j] = 0;
        assigned[j] = -1;
+       Serial.print(assigned[j]);
+       Serial.print(", to: ");
+       Serial.println(j);
        j = 9;
-     }      
+      }
+      j = j+1;     
     }
    }
   } 
@@ -184,15 +197,62 @@ void tick()
    Om det finns en period definierad för pin 2: 
    Räkna hur många ticks som har passera, och toggla pin 2 om nuvarande period är uppnådd.
    */
-  for(int i = 2; i <= 8; i+2){
-   if (currentPeriod[i]>0){
-     currentTick[i]++;
-     if (currentTick[i] >= currentPeriod[i]){
-       int j = i++;
-       togglePin(i, j);
-       currentTick[i]=0;
-     }
-    } 
+
+  if (currentPeriod[2]>0){
+    currentTick[2]++;
+    if (currentTick[2] >= currentPeriod[2]){
+      togglePin(2,3);
+      currentTick[2]=0;
+    }
+  }
+  if (currentPeriod[4]>0){
+    currentTick[4]++;
+    if (currentTick[4] >= currentPeriod[4]){
+      togglePin(4,5);
+      currentTick[4]=0;
+    }
+  }
+  if (currentPeriod[6]>0){
+    currentTick[6]++;
+    if (currentTick[6] >= currentPeriod[6]){
+      togglePin(6,7);
+      currentTick[6]=0;
+    }
+  }
+  if (currentPeriod[8]>0){
+    currentTick[8]++;
+    if (currentTick[8] >= currentPeriod[8]){
+      togglePin(8,9);
+      currentTick[8]=0;
+    }
+  }
+  if (currentPeriod[10]>0){
+    currentTick[10]++;
+    if (currentTick[10] >= currentPeriod[10]){
+      togglePin(10,11);
+      currentTick[10]=0;
+    }
+  }
+  if (currentPeriod[12]>0){
+    currentTick[12]++;
+    if (currentTick[12] >= currentPeriod[12]){
+      togglePin(12,13);
+      currentTick[12]=0;
+    }
+  }
+  if (currentPeriod[14]>0){
+    currentTick[14]++;
+    if (currentTick[14] >= currentPeriod[14]){
+      togglePin(14,15);
+      currentTick[14]=0;
+    }
+  }
+  if (currentPeriod[16]>0){
+    currentTick[16]++;
+    if (currentTick[16] >= currentPeriod[16]){
+      togglePin(16,17);
+      currentTick[16]=0;
+    }
   }
 }
 
