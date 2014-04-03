@@ -28,6 +28,9 @@ const byte FIRST_PIN = 2;
 const byte PIN_MAX = 17;
 #define RESOLUTION 40 // Microsecond resolution for notes. Upplösningen.
 
+// Values for each floppy representing it's activation and direction pins
+// -1 = unused
+// 0< = button assigned
 short assigned[] = {0,0,-1,0,-1,0,-1,0,-1,0,-1,0,-1,0,-1,0,-1,0};
 
 /*NOTE: Many of the arrays below contain unused indexes.  This is 
@@ -84,8 +87,6 @@ int count = 0;
 short values[] = {1,1,1,1, 1,1,1,1, 1,1,1,1, 1,1,1,1};
 short prevValues[] = {1,1,1,1, 1,1,1,1, 1,1,1,1, 1,1,1,1};
 
-boolean changed = false;
-
 //Setup pins (Even-odd pairs for step control and direction
 void setup(){
   pinMode(2, OUTPUT); // Step control 1
@@ -133,26 +134,37 @@ void loop(){
     delay(2000);
   }
   
-  readKeyes();
-  
-  if(changed){
-   for(int i = 0; i <= 15; i++){
-    if(values[i] == 0){
-     for(int j = 2; j <= 8; j+2){
-      if(assigned[j] < 0){
-       currentPeriod[j] = (microPeriods[i])/(RESOLUTION*2);
-       assigned[j] = i;
-       j = 9;
+  for(int btnNum = 0; btnNum<=15; btnNum++){
+   // Read key
+   boolean changed = readKey(btnNum);
+   if(changed){
+    // If key is pressed down
+    if(values[btnNum] == 0){
+     // Iterate floppys activation pins
+     for (int activationPin = 2; activationPin <= 8; activationPin+=2){
+      // If floppy not busy
+      if (assigned[activationPin] < 0){
+       // Set tone to activation pin
+       currentPeriod[activationPin] = (microPeriods[btnNum])/(RESOLUTION*2);
+       // Memorize button
+       assigned[activationPin] = btnNum;
+       // Stop loop
+       activationPin = 9;
       }
      }
-    }   
-   
-    else if(values[i] == 1){
-     for(int j = 2; j <= 8; j+2){
-      if(assigned[j] == i){
-       currentPeriod[j] = 0;
-       assigned[j] = -1;
-       j = 9;
+    }
+    // If key is released
+    else if(values[btnNum] == 1){
+     // Iterate floppys activation pins
+     for(int activationPin = 2; activationPin <= 8; activationPin+=2){
+      // If floppy is busy with current butNum
+      if(assigned[activationPin] == btnNum){
+       // Stop floppy
+       currentPeriod[activationPin] = 0;
+       // Set floppy floppy as unused
+       assigned[activationPin] = -1;
+       // Stop loop
+       activationPin = 9;
      }      
     }
    }
@@ -221,13 +233,9 @@ void togglePin(byte pin, byte direction_pin) {
   currentState[pin] = ~currentState[pin];
 }
 
-void readKeyes(){
-  for(int i = 0; i<=15; i++){
-    prevValues[i] = values[i];
-  }
-  changed = false;
-  
-  for(count = 0; count<=15; count++){
+boolean readKey(int count){
+  prevValues[count] = values[count];
+  boolean changed = false;
   
   bit0 = bitRead(count, 0);
   bit1 = bitRead(count, 1);
@@ -244,21 +252,13 @@ void readKeyes(){
   if(values[count] != prevValues[count]){
     changed = true; 
   }
-  }
-delay(5);  
+  return changed;
 }
 
 
 //
 //// UTILITY FUNCTIONS
 //
-
-//Not used now, but good for debugging...
-void blinkLED(){
-  digitalWrite(13, HIGH); // set the LED on
-  delay(250);              // wait for a second
-  digitalWrite(13, LOW); 
-}
 
 //For a given controller pin, runs the read-head all the way back to 0
 void reset(byte pin)

@@ -76,14 +76,68 @@ class Pianokey {
     if (halfkey == false && keynum>0 && keynum<12*octaves){
       Pianokey pianokey = pianokeys.get(keynum-1);
       pianokey.draw();
-      //Pianokey pianokey2 = pianokeys.get(keynum+1);
-      //pianokey2.draw();
+    }
+    // Tone spacing lines
+    stroke(120); // Line color
+    int x;
+    int y = window_y-125;
+    switch(keynum%12){
+      case(0):
+      x = this.x;
+      line(x, 0, x, y);
+      break;
+      case(1):
+      x = this.x;
+      line(x, 0, x, y);
+      x = this.x+this.w;
+      line(x, 0, x, y);
+      break;
+      case(2):
+      break;
+      case(3):
+      x = this.x;
+      line(x, 0, x, y);
+      x = this.x+this.w;
+      line(x, 0, x, y);
+      break;
+      case(4):
+      break;
+      case(5):
+      x = this.x;
+      line(x, 0, x, y);
+      break;
+      case(6):
+      x = this.x;
+      line(x, 0, x, y);
+      x = this.x+this.w;
+      line(x, 0, x, y);
+      break;
+      case(7):
+      break;
+      case(8):
+      x = this.x;
+      line(x, 0, x, y);
+      x = this.x+this.w;
+      line(x, 0, x, y);
+      break;
+      case(9):
+      break;
+      case(10):
+      x = this.x;
+      line(x, 0, x, y);
+      x = this.x+this.w;
+      line(x, 0, x, y);
+      break;
+      case(11):
+      break;
     }
   }
   void press(){
     toggled = true;
+    tonelines.get(this.keynum).enable();
   }
   void release(){
     toggled = false;
+    tonelines.get(this.keynum).disable();
   } 
 }
