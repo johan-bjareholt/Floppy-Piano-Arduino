@@ -4,8 +4,8 @@ int bit2 = 0;
 int bit3 = 0;
 
 int count = 0;
-short values[] = {1,1,1,1, 1,1,1,1, 1,1,1,1, 1,1,1,1};
-short prevValues[] = {1,1,1,1, 1,1,1,1, 1,1,1,1, 1,1,1,1};
+boolean values[] = {1,1,1,1, 1,1,1,1, 1,1,1,1, 1,1,1,1};
+boolean prevValues[] = {1,1,1,1, 1,1,1,1, 1,1,1,1, 1,1,1,1};
 
 boolean changed = false;
 
@@ -50,6 +50,5 @@ void loop(){
     }
     Serial.println("");
   }
-  delay(5);
 }
 
