@@ -1,3 +1,37 @@
+import ddf.minim.* ;
+import ddf.minim.signals.* ;
+import ddf.minim.effects.* ;
+
+// Sound variables
+Minim minim;
+AudioOutput au_out ;
+SquareWave sqw ;
+LowPassSP lpass ;
+
+
+
+// C        C#        D      D#        E        F        F#      G        G#        A        A#      B              
+float tones[] = {
+130.81,   138.59,  146.83,  155.56,  164.81,  174.61,  185.00,  196.00,  207.65,  220.00,  233.08, 246.94,
+261.63,   277.18,  293.66,  311.13,  329.63,  349.23,  369.99,  392.00,  415.30,  440.00,  466.16, 493.88,
+523.25,   554.37,  587.33,  622.25,  659.25,  698.46,  739.99,  783.99,  830.61,  880.00,  932.33, 987.77,
+1046.50,  1108.73, 1174.66, 1244.51, 1318.51, 1396.91, 1479.98, 1567.98, 1661.22, 1760.00, 1864.66, 1975.53,  
+2093.00,  2217.46, 2349.32, 2489.02, 2637.02, 2793.83, 2959.96, 3135.96, 3322.44, 3520.00, 3729.31, 3951.07
+};
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 // Window size
 int window_x = 1280;
 int window_y = 720;
@@ -33,6 +67,21 @@ void setup(){
   if (serial_on){
     serial = new Serial(this, Serial.list()[0], 9600);
   }
+  /*
+    Sound initialization
+  */
+  minim = new Minim(this) ;
+  au_out = minim.getLineOut() ;
+  // create a SquareWave with a frequency of 440 Hz,
+  // an amplitude of 1 and the same sample rate as out
+  sqw = new SquareWave(440, 1, 44100);
+  au_out.mute();
+  // create a LowPassSP filter with a cutoff frequency of 200 Hz
+  // that expects audio with the same sample rate as out
+  lpass = new LowPassSP(200, 44100);
+  // now we can attach the square wave and the filter to our output
+  au_out.addSignal(sqw);
+  au_out.addEffect(lpass);
 }
 
 void draw(){
@@ -54,6 +103,7 @@ void draw(){
     Toneline toneline = tonelines.get(tonenum);
     toneline.draw();
   }
+  
   /*
      Serial read
    */
@@ -77,6 +127,19 @@ void draw(){
       }
     }
   }
+  
+  // Play note
+  boolean musicOn = false;
+  for (int keynum = 0; keynum<pianokeys.size(); keynum++){
+    Pianokey pianokey = pianokeys.get(keynum);
+    if (pianokey.toggled){
+      sqw.setFreq(tones[keynum]);
+      musicOn = true;
+    }
+  }
+  if (musicOn) { au_out.unmute(); }
+  else { au_out.mute(); }
+
   textSize(16);
   text("Frame rate: " + int(frameRate), 10, 20);
 }
