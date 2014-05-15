@@ -37,7 +37,7 @@ int window_x = 1280;
 int window_y = 720;
 
 // Serial enabled
-boolean serial_on = false;
+boolean serial_on = true;
 
 // Button amount
 int octaves = 3;
@@ -118,7 +118,7 @@ void draw(){
         pianokey.press();
         pianokey.draw();
       }
-      else if (serialValue > 12*octaves && serialValue < 2*(12*octaves)) {
+      else if (serialValue >= 12*octaves && serialValue < 2*(12*octaves)) {
         int tone = serialValue-(12*octaves);
         println("Tone " + tone + "was released");
         Pianokey pianokey = pianokeys.get(serialValue-(12*octaves));
