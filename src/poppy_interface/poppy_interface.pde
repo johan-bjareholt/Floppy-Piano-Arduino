@@ -37,7 +37,7 @@ int window_x = 1280;
 int window_y = 720;
 
 // Serial enabled
-boolean serial_on = true;
+boolean serial_on = false;
 
 // Button amount
 int octaves = 3;
@@ -162,6 +162,7 @@ void keyPressed(){
     case('k'):case('K'):pianokey = pianokeys.get(12); pianokey.press() ;pianokey.draw();break;
     case('o'):case('O'):pianokey = pianokeys.get(13); pianokey.press() ;pianokey.draw();break;
     case('l'):case('L'):pianokey = pianokeys.get(14); pianokey.press() ;pianokey.draw();break;
+    default:break;
   }
 }
  
@@ -183,5 +184,6 @@ void keyReleased(){
     case('k'):case('K'):pianokey = pianokeys.get(12); pianokey.release() ;pianokey.draw();break;
     case('o'):case('O'):pianokey = pianokeys.get(13); pianokey.release() ;pianokey.draw();break;
     case('l'):case('L'):pianokey = pianokeys.get(14); pianokey.release() ;pianokey.draw();break;
+    default:break;
   }
 }
