@@ -37,7 +37,8 @@ int window_x = 1280;
 int window_y = 720;
 
 // Serial enabled
-boolean serial_on = false;
+boolean serial_on = true;
+boolean soundOn = false;
 
 // Button amount
 int octaves = 3;
@@ -129,16 +130,18 @@ void draw(){
   }
   
   // Play note
-  boolean musicOn = false;
-  for (int keynum = 0; keynum<pianokeys.size(); keynum++){
-    Pianokey pianokey = pianokeys.get(keynum);
-    if (pianokey.toggled){
-      sqw.setFreq(tones[keynum]);
-      musicOn = true;
+  if (soundOn){
+    boolean noteSoundOn = false;
+    for (int keynum = 0; keynum<pianokeys.size(); keynum++){
+      Pianokey pianokey = pianokeys.get(keynum);
+      if (pianokey.toggled){
+        sqw.setFreq(tones[keynum]);
+        noteSoundOn = true;
+      }
     }
+    if (noteSoundOn) { au_out.unmute(); }
+    else { au_out.mute(); }
   }
-  if (musicOn) { au_out.unmute(); }
-  else { au_out.mute(); }
 
   textSize(16);
   text("Frame rate: " + int(frameRate), 10, 20);
