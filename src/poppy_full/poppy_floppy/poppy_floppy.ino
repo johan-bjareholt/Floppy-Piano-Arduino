@@ -6,15 +6,8 @@ boolean firstRun = true; // Used for one-run-only stuffs
 // First pin being used for floppies, and the last pin.  Used for looping over all pins.
 const byte FIRST_PIN = 2;
 const byte PIN_MAX = 17;
-const byte potPin1 = A0;
-const byte potPin2 = A1;
 
 #define RESOLUTION 40 // Microsecond resolution for notes.
-
-int potVal1 = 0;
-int potMap1 = 0;
-int potVal2 = 0;
-int potMap2 = 0;
 
 /*NOTE: Many of the arrays below contain unused indexes.  This is 
  to prevent the Arduino from having to convert a pin input to an alternate
@@ -24,7 +17,6 @@ int potMap2 = 0;
 
 //Array containing all periods we are interested in using. 0-48
 const int microPeriods[] = {
-        0,
         30578, 28861, 27242, 25713, 24270, 22909, 21622, 20409, 19263, 18182, 17161, 16198, //C1 - B1
         15289, 14436, 13621, 12856, 12135, 11454, 10811, 10205, 9632, 9091, 8581, 8099, //C2 - B2
         7645, 7218, 6811, 6428, 6068, 5727, 5406, 5103, 4816, 4546, 4291, 4050, //C3 - B3
@@ -74,20 +66,18 @@ void setup(){
   pinMode(7, OUTPUT); // Direction 3
   pinMode(8, OUTPUT); // Step control 4
   pinMode(9, OUTPUT); // Direction 4
-  
-  pinMode(potPin1, INPUT); // Potentiometer pin 1
-  pinMode(potPin2, INPUT); // Potentiometer pin 2
 
   Timer1.initialize(RESOLUTION); // Set up a timer at the defined resolution. 
 
   Timer1.attachInterrupt(tick); // Attach the tick function
   
   Wire.begin(4);                // join i2c bus with address #4
-  
-  Wire.onReceive(receiveEvent); // register event
+  Wire.onReceive(asd);
   
   Serial.begin(9600);
 }
+
+void asd(int asda){}
 
 void loop(){
 
@@ -99,43 +89,30 @@ void loop(){
     delay(2000);
   }
   
-  // Reading current potentiometer values.
-  potVal1 = analogRead(potPin1);
-  potVal2 = analogRead(potPin2);
-  
-  // Converting current potentiometer values to a number between 0-36.
-  potMap1 = constrain(map(potVal1, 0, 1023, 0, 36), 0, 36);
-  potMap2 = constrain(map(potVal2, 0, 1023, 0, 36), 0, 36);
-  
-  // May be activated to find if the potentiometers are perforing correctly.
-  //Serial.print("Pot1: ");
-  //Serial.print(potVal1);
-  //Serial.print(" Pot2: ");
-  //Serial.println(potVal2);
-  
-  // Assign the proper tone from the array to the drive corresponding to the potentiometer.
-  currentPeriod[2] = (microPeriods[potMap1])/(RESOLUTION*2);
-  currentPeriod[4] = (microPeriods[potMap2])/(RESOLUTION*2);
+  while(2 < Wire.available()) // loop through all but the last
+  {
+    Wire.read(); // receive byte as a character
+  }
+  while(2 == Wire.available()) // loop through all but the last
+  {
+    // Read activationPin
+    int activationPin = Wire.read();
+    // Read keyNum
+    int keyNum = Wire.read();
+    //Serial.println(activationPin);
+    //Serial.println(keyNum);
+    if (activationPin<100){
+      currentPeriod[activationPin] = (microPeriods[keyNum+7])/(RESOLUTION*2);
+    }
+    else{
+      currentPeriod[activationPin-100] = 0;
+    }
+  }
   
    /*
    Current period assigned to each pin.  0 = off.  Each period is of the length specified by the RESOLUTION
    variable above.  i.e. A period of 10 is (RESOLUTION x 10) microseconds long.
    */
-}
-
-// function that executes whenever data is received from master
-// this function is registered as an event, see setup()
-void receiveEvent(int howMany)
-{
-  while(1 < Wire.available()) // loop through all but the last
-  {
-    int c = Wire.read(); // receive byte as a character
-    Serial.print("Activation pin: ");
-    Serial.println(c);         // print the character
-  }
-  int x = Wire.read();    // receive byte as an integer
-  Serial.print("Keynum: ");
-  Serial.println(x);         // print the integer
 }
 
 // Called by the timer inturrupt at the specified resolution.
