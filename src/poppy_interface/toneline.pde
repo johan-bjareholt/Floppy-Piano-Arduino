@@ -1,29 +1,24 @@
-class Rect {
-  int x, y;
-  int w, h;
+class ToneRect extends Rect {
   boolean enabled = true;
-  Rect (int x, int y, int w, int h){
-    this.x = x;
-    this.y = y;
-    this.w = w;
-    this.h = h;
+  ToneRect (int x, int y, int w, int h) {
+    super(x,y,w,h);
   }
 }
 
 class Toneline{
   int tonenum;
   boolean enabled = false;
-  ArrayList<Rect> lines;
+  ArrayList<ToneRect> lines;
   Toneline (int tonenum) {
     this.tonenum = tonenum;
-    this.lines = new ArrayList<Rect>();
+    this.lines = new ArrayList<ToneRect>();
   }
   
   void draw() {
     stroke(200,200,200);
     fill(255,255,255);
     for (int linenum=0; linenum<lines.size(); linenum++){
-      Rect line = this.lines.get(linenum);
+      ToneRect line = this.lines.get(linenum);
       rect(line.x,line.y,line.w,line.h);  // Toggle, x, y, w , h
       if (line.enabled == true){
         line.h += 5;
@@ -38,7 +33,7 @@ class Toneline{
   void enable(){
     if (this.enabled == false){
       int x = pianokeys.get(tonenum).x + (pianokeys.get(tonenum).w/2);
-      lines.add(new Rect(x, window_y-125, 5, 5));
+      lines.add(new ToneRect(x, window_y-125, 5, 5));
       this.enabled = true;
     }
   }

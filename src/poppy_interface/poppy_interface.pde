@@ -21,29 +21,22 @@ float tones[] = {
 
 
 
-
-
-
-
-
-
-
-
-
-
-
 // Window size
 int window_x = 1280;
 int window_y = 720;
 
 // Serial enabled
 boolean serial_on = true;
-boolean soundOn = false;
+boolean sound_on = true;
 
 // Button amount
 int octaves = 3;
 ArrayList<Pianokey> pianokeys;
 ArrayList<Toneline> tonelines;
+
+// Buttons
+SerialButton serialToggleButton;
+SoundButton  soundToggleButton;
 
 // Keyboard setup
 import processing.serial.*;
@@ -52,12 +45,45 @@ Serial serial;
 void setup(){
   // Sets screen resolution
   size(window_x,window_y);
+  
+  
+  // Buttons
+  serialToggleButton = new SerialButton("", window_x-170, 70, 150, 30);
+  serialToggleButton.update_status();
+  soundToggleButton = new SoundButton("", window_x-170, 20, 150, 30);
+  soundToggleButton.update_status();
+
   //frame.setResizable(true);
-  tonelines = new ArrayList<Toneline>();
   pianokeys = new ArrayList<Pianokey>();
+  tonelines = new ArrayList<Toneline>();
+
   // Initialize pianokeys and tonelines
   for (int keynum=0; keynum<octaves*12; keynum++){
-    pianokeys.add(new Pianokey(keynum));
+    int x, y;
+    
+    int w = window_x/(7*octaves);
+    int h = 125;
+    
+    int scalekeynum = keynum%12;
+    int octavestart = w*(keynum/12)*7;
+    int scalex = w*(keynum%12)/2;
+    if (scalekeynum > 4){ scalex += w/2; }
+    
+    x = octavestart + scalex;
+    y = window_y-h;
+
+    // Is it a half note?
+    boolean halfkey = false;
+    if ( scalekeynum == 1 || scalekeynum == 3 ||
+         scalekeynum == 6 || scalekeynum == 8 ||
+         scalekeynum == 10 ){
+      halfkey = true;
+      h = 75;
+      x += w/4;
+      w /= 2;
+    }
+
+    pianokeys.add(new Pianokey(keynum, halfkey, x, y, w, h));
     tonelines.add(new Toneline(keynum));
   }
   /*
@@ -65,13 +91,11 @@ void setup(){
   */
   println("Available serial ports:");
   println(Serial.list());
-  if (serial_on){
-    serial = new Serial(this, Serial.list()[0], 9600);
-  }
+  initialize_serial();
   /*
     Sound initialization
   */
-  minim = new Minim(this) ;
+  minim = new Minim(this);
   au_out = minim.getLineOut() ;
   // create a SquareWave with a frequency of 440 Hz,
   // an amplitude of 1 and the same sample rate as out
@@ -94,43 +118,36 @@ void draw(){
   // Piano key size
   int pianokey_w = window_x/(7*octaves);
   int pianokey_h = 100;
+  
   // Draw pianokeys
   for (int keynum=0; keynum<pianokeys.size(); keynum++){
     Pianokey pianokey = pianokeys.get(keynum);
     pianokey.draw();
   }
+  // Draw separationlines
+  draw_separationlines();
   // Draw tonelines
   for (int tonenum=0; tonenum<tonelines.size(); tonenum++){
     Toneline toneline = tonelines.get(tonenum);
     toneline.draw();
   }
   
+  // Draw buttons
+  serialToggleButton.draw();
+  soundToggleButton.draw();
+
+  textSize(16);
+  text("Frame rate: " + int(frameRate), 10, 20);
+
   /*
      Serial read
    */
   if (serial_on){
-    if ( serial.available() > 0) {
-      int serialValue = serial.read();
-      println(serialValue);
-      if (serialValue < 12*octaves){
-        int tone = serialValue;
-        println("Tone " + tone + "was pushed");
-        Pianokey pianokey = pianokeys.get(serialValue);
-        pianokey.press();
-        pianokey.draw();
-      }
-      else if (serialValue >= 12*octaves && serialValue < 2*(12*octaves)) {
-        int tone = serialValue-(12*octaves);
-        println("Tone " + tone + "was released");
-        Pianokey pianokey = pianokeys.get(serialValue-(12*octaves));
-        pianokey.release();
-        pianokey.draw();
-      }
-    }
+    read_serial();
   }
-  
+
   // Play note
-  if (soundOn){
+  if (sound_on){
     boolean noteSoundOn = false;
     for (int keynum = 0; keynum<pianokeys.size(); keynum++){
       Pianokey pianokey = pianokeys.get(keynum);
@@ -142,9 +159,11 @@ void draw(){
     if (noteSoundOn) { au_out.unmute(); }
     else { au_out.mute(); }
   }
+}
 
-  textSize(16);
-  text("Frame rate: " + int(frameRate), 10, 20);
+void mousePressed(){
+  serialToggleButton.clicked();
+  soundToggleButton.clicked();
 }
 
 void keyPressed(){
